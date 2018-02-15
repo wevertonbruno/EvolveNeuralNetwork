@@ -32,38 +32,39 @@ public class Population {
 	
 	public void selection(){ //consertar essa função
 		
-		Random rand = new Random();
-		int[] used = {-1,-1,-1,-1};
-		int index;
-		
 		//limpa o array de nets selecionadas anteriormente
 		this.pool.clear();
+		
 		//ordena a populacao em ordem crescente com bse no fitness
 		sortPopulation();
+		
 		//salvando 50% das melhores redes
 		for(int i = 0; i < size/2; i++){
 			this.pool.add(new NeuralNetwork(this.population.get(i+size/2)));
 			this.pool.get(i).mutate();
 			}
+		
 		//seleciona randomicamente 25% das piores redes
 		for(int i=0; i < size/4; i++){
 			this.pool.add(new NeuralNetwork(this.population.get(i)));
 			this.pool.get(size/2 + i).mutate();
 		}
+		//limpa as 50% piores
+		for(int i=0;i<size/2;i++)
+			this.population.remove(0);
+;
 		System.out.println("Selection succefull!");
 	}
 	
 	public void breed(){
 		
 		//calcula quantidade de filhos para preencher a pool
-		int popSize = this.population.size();
-		int poolSize = this.pool.size();
-		int remaining = popSize - poolSize;
 		Random rand = new Random();
+		int poolSize = this.pool.size();
 		int iMom;
 		int iDad;
 		
-		while(remaining > 0){
+		for(int i=0;i<size/2;i++) {
 			
 			do{
 				iMom = rand.nextInt(poolSize);
@@ -75,13 +76,7 @@ public class Population {
 			NeuralNetwork Child = Mom.getChild(Dad);
 			//Child.mutate();
 			
-			this.pool.add(Child);
-			remaining--;
-		}
-		
-		this.population.clear();
-		for(int i=0; i < this.size; i++) {
-			this.population.add(this.pool.get(i));
+			this.population.add(Child);
 		}
 		System.out.println("Breed succefull!");
 	}

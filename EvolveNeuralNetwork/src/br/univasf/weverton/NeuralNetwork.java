@@ -84,66 +84,13 @@ public class NeuralNetwork implements Comparable<NeuralNetwork>{
 		return this.fitness;
 	}
 	
+	
+	
 	public void mutate(){
-		Random rand = new Random();
-		for(int i = 0; i < weights_input_hidden.linha; i++){
-			for(int j = 0; j < weights_input_hidden.coluna; j++){
-				float temp = weights_input_hidden.data[i][j];
-				float r = rand.nextFloat()*100;
-				
-				if (r <= 2)
-                {
-                    temp *= -1;
-                }
-                else if (r <= 4)
-                { 
-                    temp = rand.nextFloat()*2-1;
-                }
-                else if (r <= 6f)
-                { //if 3
-                  //randomly increase by 0% to 100%
-                    float factor = rand.nextFloat() + 1f;
-                    temp *= factor;
-                }
-                else if (r <= 8f)
-                { //if 4
-                  //randomly decrease by 0% to 100%
-                    float factor = rand.nextFloat();
-                    temp *= factor;
-                }
-				weights_input_hidden.data[i][j] = temp;
-			}
-		}
-		
-		for(int i = 0; i < weights_hidden_output.linha; i++){
-			for(int j = 0; j < weights_hidden_output.coluna; j++){
-				float temp = weights_hidden_output.data[i][j];
-				float r = rand.nextFloat()*100;
-				
-				if (r <= 2)
-                {
-                    temp *= -1;
-                }
-                else if (r <= 4)
-                { 
-                    temp = rand.nextFloat()*2-1;
-                }
-                else if (r <= 6f)
-                { //if 3
-                  //randomly increase by 0% to 100%
-                    float factor = rand.nextFloat() + 1f;
-                    temp *= factor;
-                }
-                else if (r <= 8f)
-                { //if 4
-                  //randomly decrease by 0% to 100%
-                    float factor = rand.nextFloat();
-                    temp *= factor;
-                }
-				
-				weights_hidden_output.data[i][j] = temp;
-			}
-		}
+		this.weights_input_hidden.mutateAux(1);
+		this.weights_hidden_output.mutateAux(1);
+		this.hidden_bias.mutateAux(1);
+		this.output_bias.mutateAux(1);
 	}
 	
 	//backpropagation
@@ -181,11 +128,18 @@ public class NeuralNetwork implements Comparable<NeuralNetwork>{
 		
 		NeuralNetwork child = new NeuralNetwork(this.input_nodes,this.hidden_nodes,this.output_nodes);
 		
+		if(this.fitness > other.fitness) {
 		child.weights_input_hidden.fromArray(crossOver(this.weights_input_hidden,other.weights_input_hidden));
 		child.hidden_bias.fromArray(crossOver(this.hidden_bias,other.hidden_bias));
 		child.weights_hidden_output.fromArray(crossOver(this.weights_hidden_output,other.weights_hidden_output));
 		child.output_bias.fromArray(crossOver(this.output_bias,other.output_bias));
-		
+		}
+		else {
+			child.weights_input_hidden.fromArray(crossOver(other.weights_input_hidden,this.weights_input_hidden));
+			child.hidden_bias.fromArray(crossOver(other.hidden_bias,this.hidden_bias));
+			child.weights_hidden_output.fromArray(crossOver(other.weights_hidden_output,this.weights_hidden_output));
+			child.output_bias.fromArray(crossOver(other.output_bias,this.output_bias));
+		}
 		
 		return child;
 	}
@@ -209,7 +163,7 @@ public class NeuralNetwork implements Comparable<NeuralNetwork>{
 			return child;
 
 		}else{
-			return parent1.clone();		
+			return parent1;		
 		}
 		
 	}

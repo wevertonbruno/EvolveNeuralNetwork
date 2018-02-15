@@ -128,4 +128,37 @@ public class Matrix {
 		        result.data[i][j] = targets.data[i][j] - outputs.data[i][j];
 		return result;
 	}
+	
+	public void mutateAux(float taxa) {
+		Random rand = new Random();
+		for(int i = 0; i < this.linha; i++){
+			for(int j = 0; j <this.coluna; j++){
+				
+				float temp = this.data[i][j];
+				float r = rand.nextFloat()*(100/taxa);
+				
+				if (r <= 2)
+                {
+                    temp *= -1;
+                }
+                else if (r <= 4)
+                { 
+                    temp = rand.nextFloat()*2-1;
+                }
+                else if (r <= 6f)
+                { //if 3
+                  //randomly increase by 0% to 100%
+                    float factor = rand.nextFloat() + 1f;
+                    temp *= factor;
+                }
+                else if (r <= 8f)
+                { //if 4
+                  //randomly decrease by 0% to 100%
+                    float factor = rand.nextFloat();
+                    temp *= factor;
+                }
+				this.data[i][j] = temp;
+			}
+		}
+	}
 }
