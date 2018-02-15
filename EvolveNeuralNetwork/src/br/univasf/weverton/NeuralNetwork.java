@@ -39,54 +39,6 @@ public class NeuralNetwork implements Comparable<NeuralNetwork>{
 		this.output_bias = copyNN.output_bias.toCopy();
 	}
 	
-	public NeuralNetwork(int in, int hid, int out, float[] pesos){
-		this.input_nodes = in;
-		this.output_nodes = out;
-		this.hidden_nodes = hid;
-		setFitness(0);
-		 // inicializar matriz de pesos
-		
-		initWeightsFromArray(pesos);
-	}
-	
-	public void initWeightsFromArray(float[] pesos){
-		float[] temp;
-		int t1,t2;
-		
-		//primeira camada de pesos
-		this.weights_input_hidden = new Matrix(hidden_nodes,input_nodes);
-			t1 = this.weights_input_hidden.lenght();
-			temp = new float[t1];
-				for(int i=0; i<t1; i++)
-					temp[i]=pesos[i];
-		this.weights_input_hidden.fromArray(temp);
-		
-		//segunda camada de pesos
-		this.weights_hidden_output = new Matrix(output_nodes,hidden_nodes);
-		t2 = this.weights_hidden_output.lenght();
-		temp = new float[t2];
-			for(int i=0; i<t2; i++)
-				temp[i]=pesos[i+t1];
-		this.weights_hidden_output.fromArray(temp);
-		t1 += t2;
-		
-		
-		this.hidden_bias = new Matrix(hidden_nodes,1);
-		t2 = this.hidden_bias.lenght();
-		temp = new float[t2];
-			for(int i=0; i<t2; i++)
-				temp[i]=pesos[i+t1];
-		this.hidden_bias.fromArray(temp);
-		t1 += t2;
-		
-		this.output_bias = new Matrix(output_nodes, 1);
-		t2 = this.output_bias.lenght();
-		temp = new float[t2];
-			for(int i=0; i<t2; i++)
-				temp[i]=pesos[i+t1];
-		this.hidden_bias.fromArray(temp);
-	}
-	
 	private void initWeights(){
 		//input_hidden possui numero de colunas da input e linhas da hidden
 		this.weights_input_hidden = new Matrix(hidden_nodes,input_nodes);
@@ -121,6 +73,9 @@ public class NeuralNetwork implements Comparable<NeuralNetwork>{
 	
 	public void setFitness(int v){
 		this.fitness = v;
+	}
+	public void addFitness(int v) {
+		this.fitness += v;
 	}
 	public void incFitness(){
 		this.fitness++;
@@ -191,7 +146,8 @@ public class NeuralNetwork implements Comparable<NeuralNetwork>{
 		}
 	}
 	
-	public void train(float[] inputs,float[] target){
+	//backpropagation
+	public void backpropagation(float[] inputs,float[] target){
 		
 		float[] out = feedFoward(inputs);
 		
@@ -210,6 +166,7 @@ public class NeuralNetwork implements Comparable<NeuralNetwork>{
 		//coding back Propagation
 	}
 
+	//metodo auxiliar do Sort()
 	public int compareTo(NeuralNetwork other) {
 		if (this.getFitness() < other.getFitness()) {
             return -1;
@@ -221,19 +178,40 @@ public class NeuralNetwork implements Comparable<NeuralNetwork>{
 	}
 	
 	public NeuralNetwork getChild(NeuralNetwork other){
-		float[] arrayPai1, arrayPai2;
 		
-		//array vai ter o tamanho de todos os parametros da rede
-		//necessario criar metodo que cria rede passando um vetor
-		arrayPai1 = new float[this.weights_input_hidden.lenght() + this.weights_hidden_output.lenght() + 
-		                      this.hidden_bias.lenght() + this.output_bias.lenght()];
+		NeuralNetwork child = new NeuralNetwork(this.input_nodes,this.hidden_nodes,this.output_nodes);
 		
-		arrayPai2 = new float[other.weights_input_hidden.lenght() + other.weights_hidden_output.lenght() + 
-		                      other.hidden_bias.lenght() + other.output_bias.lenght()];
+		child.weights_input_hidden.fromArray(crossOver(this.weights_input_hidden,other.weights_input_hidden));
+		child.hidden_bias.fromArray(crossOver(this.hidden_bias,other.hidden_bias));
+		child.weights_hidden_output.fromArray(crossOver(this.weights_hidden_output,other.weights_hidden_output));
+		child.output_bias.fromArray(crossOver(this.output_bias,other.output_bias));
 		
-		//criar algoritmo de procriacao aqui
 		
-		return new NeuralNetwork(2,2,1);
+		return child;
+	}
+	
+	private float[] crossOver(Matrix pai1, Matrix pai2) {
+		float[] parent1, parent2, child;
+		parent1 = pai1.toArray();
+		parent2 = pai2.toArray();
+		child = new float[parent1.length];
+		Random rand = new Random();
+		
+		if(rand.nextFloat() > 0.4){
+			int midpoint = rand.nextInt(parent1.length);
+
+			for (int i = 0; i < parent1.length; i++) {
+				if (i > midpoint) 
+					child[i] = parent1[i];
+				else              
+					child[i] = parent2[i];
+			}
+			return child;
+
+		}else{
+			return parent1.clone();		
+		}
+		
 	}
 	
 

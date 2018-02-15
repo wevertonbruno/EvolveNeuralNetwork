@@ -5,26 +5,32 @@ import java.util.Collections;
 import java.util.Random;
 
 public class Population {
-
+	
+	public int[] settings;
 	public int size;
 	public ArrayList<NeuralNetwork> population;
 	private ArrayList<NeuralNetwork> pool;
 	
-	public Population(int size){
+	public Population(int size, int[] setup){
 		
+		this.settings = setup.clone();
 		this.size = size;
 		this.population = new ArrayList<NeuralNetwork>();
 		this.pool = new ArrayList<NeuralNetwork>();
 		
 		for(int i=0; i<this.size; i++)
-			population.add(new NeuralNetwork(2,2,1));
+			population.add(new NeuralNetwork(this.settings[0],this.settings[1],this.settings[2]));
+	}
+	
+	public NeuralNetwork getBrain(int index) {
+		return this.population.get(index);
 	}
 	
 	public void sortPopulation(){
 		Collections.sort(this.population);
 	}
 	
-	public void selection(){
+	public void selection(){ //consertar essa função
 		
 		Random rand = new Random();
 		int[] used = {-1,-1,-1,-1};
@@ -41,19 +47,10 @@ public class Population {
 			}
 		//seleciona randomicamente 25% das piores redes
 		for(int i=0; i < size/4; i++){
-			
-			do{
-			index = rand.nextInt((int)size/4);
-			for(int j : used)
-				if(j == index){
-					index = -1;
-					break;
-				}
-			}while(index != -1);
-			
-			this.pool.add(new NeuralNetwork(this.population.get(index)));
+			this.pool.add(new NeuralNetwork(this.population.get(i)));
 			this.pool.get(size/2 + i).mutate();
 		}
+		System.out.println("Selection succefull!");
 	}
 	
 	public void breed(){
@@ -75,11 +72,18 @@ public class Population {
 			
 			NeuralNetwork Mom = this.pool.get(iMom);
 			NeuralNetwork Dad = this.pool.get(iDad);
+			NeuralNetwork Child = Mom.getChild(Dad);
+			//Child.mutate();
 			
-			this.pool.add(Mom.getChild(Dad));
+			this.pool.add(Child);
 			remaining--;
 		}
 		
+		this.population.clear();
+		for(int i=0; i < this.size; i++) {
+			this.population.add(this.pool.get(i));
+		}
+		System.out.println("Breed succefull!");
 	}
 	
 }
